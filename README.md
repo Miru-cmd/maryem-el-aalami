@@ -1,2 +1,0 @@
-# maryem-el-aalami
-dashboard
