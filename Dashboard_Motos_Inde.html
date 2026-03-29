@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏍️ Dashboard — Marché des Motos en Inde</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --card: #16161f;
+    --border: #2a2a3a;
+    --accent: #ff5c2b;
+    --accent2: #ffc72c;
+    --accent3: #3dffa0;
+    --text: #f0eeea;
+    --muted: #7a7a95;
+    --orange: #ff7a45;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a0a00 50%, #0a0a0f 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 40px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,92,43,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .header-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .header-title span { color: var(--accent); }
+  .header-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+  .header-badge {
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 2px;
+    margin-top: 8px;
+    display: inline-block;
+  }
+
+  /* KPI STRIP */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  @media (max-width: 900px) { .kpi-strip { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 500px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+
+  .kpi-card {
+    background: var(--bg2);
+    padding: 24px 20px;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .kpi-card:hover { background: var(--card); }
+  .kpi-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .kpi-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* MAIN CONTENT */
+  .container { padding: 36px 48px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 768px) { .container { padding: 20px 16px; } }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 3px;
+    color: var(--text);
+    border-left: 4px solid var(--accent);
+    padding-left: 16px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
+  @media (max-width: 1100px) { .grid-3 { grid-template-columns: 1fr 1fr; } .grid-4 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 700px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+  }
+  .card-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th {
+    background: rgba(255,92,43,0.1);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  tr:hover td { background: rgba(255,92,43,0.04); }
+  tr:last-child td { border-bottom: none; font-weight: 600; color: var(--accent2); }
+
+  .bar-cell { display: flex; align-items: center; gap: 8px; }
+  .mini-bar {
+    height: 6px;
+    background: var(--accent);
+    border-radius: 2px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+  .pct { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--accent3); }
+
+  /* FUEL CARDS */
+  .fuel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 700px) { .fuel-grid { grid-template-columns: 1fr; } }
+  .fuel-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .fuel-item.electric { border-top: 3px solid var(--accent3); }
+  .fuel-item.hybrid { border-top: 3px solid var(--accent2); }
+  .fuel-item.petrol { border-top: 3px solid var(--accent); }
+  .fuel-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+  }
+  .fuel-item.electric .fuel-name { color: var(--accent3); }
+  .fuel-item.hybrid .fuel-name { color: var(--accent2); }
+  .fuel-item.petrol .fuel-name { color: var(--accent); }
+  .fuel-count { font-size: 2rem; font-weight: 600; margin: 8px 0 2px; }
+  .fuel-pct { color: var(--muted); font-size: 0.8rem; }
+  .fuel-detail { margin-top: 12px; font-size: 0.8rem; color: var(--muted); }
+  .fuel-detail strong { color: var(--text); }
+
+  /* DONUT LABELS */
+  .donut-wrapper { position: relative; max-width: 220px; margin: 0 auto; }
+
+  /* STAT PAIRS */
+  .stat-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+  }
+  .stat-item .val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-item .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  /* ANNEE TABLE */
+  .year-row { display: grid; grid-template-columns: 60px 1fr 90px 90px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(42,42,58,0.4); }
+  .year-row:last-child { border-bottom: none; }
+  .year-num { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--accent2); }
+  .year-bar-bg { background: rgba(255,92,43,0.1); border-radius: 2px; height: 8px; }
+  .year-bar-fill { background: linear-gradient(90deg, var(--accent), var(--orange)); border-radius: 2px; height: 8px; }
+  .year-val { font-size: 0.8rem; text-align: right; color: var(--text); }
+
+  /* TIER CARDS */
+  .tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 900px) { .tier-grid { grid-template-columns: repeat(2, 1fr); } }
+  .tier-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px;
+    text-align: center;
+  }
+  .tier-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 2px; color: var(--accent2); }
+  .tier-count { font-size: 1.6rem; font-weight: 600; margin: 6px 0 2px; }
+  .tier-price { font-size: 0.75rem; color: var(--muted); }
+
+  /* SELLER / INSURANCE */
+  .split-card { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 700px) { .split-card { grid-template-columns: 1fr; } }
+
+  .pill-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(42,42,58,0.4); }
+  .pill-row:last-child { border-bottom: none; }
+  .pill-label { font-size: 0.85rem; }
+  .pill-val { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--accent3); }
+
+  /* OWNER */
+  .owner-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 700px) { .owner-grid { grid-template-columns: 1fr; } }
+  .owner-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    text-align: center;
+  }
+  .owner-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+  .owner-count { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--accent); margin: 4px 0 2px; }
+  .owner-price { font-size: 0.8rem; color: var(--accent3); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 48px;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  footer span { color: var(--accent); }
+
+  canvas { max-height: 260px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <div>
+      <div class="header-title">🏍️ Marché des<br><span>Motos</span> en Inde</div>
+      <div class="header-sub">Analyse complète · 10 000 enregistrements · 2015–2024</div>
+      <div class="header-badge">Dashboard Analytique</div>
+    </div>
+  </div>
+</header>
+
+<!-- KPI STRIP -->
+<div class="kpi-strip">
+  <div class="kpi-card">
+    <div class="kpi-value">10 000</div>
+    <div class="kpi-label">Total Motos</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">₹2,24,329</div>
+    <div class="kpi-label">Prix Moyen</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">₹1,33,829</div>
+    <div class="kpi-label">Prix Revente Moy.</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">67.2</div>
+    <div class="kpi-label">Kilométrage Moy. (km/l)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">42.5 km</div>
+    <div class="kpi-label">Distance Moy./Jour</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">8 marques</div>
+    <div class="kpi-label">10 États</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- ANALYSE PAR MARQUE -->
+  <div class="section-title">Analyse par Marque</div>
+  <div class="grid-2" style="margin-bottom:32px;">
+
+    <div class="card">
+      <div class="card-title">Tableau — Parts de marché</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Marque</th>
+            <th>Nb Motos</th>
+            <th>% Part</th>
+            <th>Prix Moy. (₹)</th>
+            <th>Revente (₹)</th>
+            <th>km/l</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Kawasaki</td><td>1 291</td><td class="pct">12.9%</td><td>2,23,163</td><td>1,34,373</td><td>66.9</td></tr>
+          <tr><td>Yamaha</td><td>1 283</td><td class="pct">12.8%</td><td>2,25,922</td><td>1,35,535</td><td>67.1</td></tr>
+          <tr><td>KTM</td><td>1 272</td><td class="pct">12.7%</td><td>2,22,613</td><td>1,32,003</td><td>67.4</td></tr>
+          <tr><td>Royal Enfield</td><td>1 253</td><td class="pct">12.5%</td><td>2,22,886</td><td>1,32,591</td><td>66.7</td></tr>
+          <tr><td>Hero</td><td>1 239</td><td class="pct">12.4%</td><td>2,26,001</td><td>1,34,885</td><td>67.5</td></tr>
+          <tr><td>TVS</td><td>1 234</td><td class="pct">12.3%</td><td>2,22,469</td><td>1,33,497</td><td>67.9</td></tr>
+          <tr><td>Honda</td><td>1 221</td><td class="pct">12.2%</td><td>2,21,077</td><td>1,31,097</td><td>66.7</td></tr>
+          <tr><td>Bajaj</td><td>1 207</td><td class="pct">12.1%</td><td>2,30,663</td><td>1,36,662</td><td>67.2</td></tr>
+          <tr><td><strong>TOTAL</strong></td><td><strong>10 000</strong></td><td class="pct"><strong>100%</strong></td><td><strong>2,24,329</strong></td><td><strong>1,33,829</strong></td><td><strong>67.2</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Répartition des Parts de Marché</div>
+      <canvas id="brandChart"></canvas>
+    </div>
+  </div>
+
+  <!-- CARBURANT -->
+  <div class="section-title">Analyse par Type de Carburant</div>
+  <div class="grid-2" style="margin-bottom:32px;">
+    <div class="card">
+      <div class="card-title">Distribution Carburant</div>
+      <div class="fuel-grid">
+        <div class="fuel-item electric">
+          <div class="fuel-name">Électrique</div>
+          <div class="fuel-count">3 283</div>
+          <div class="fuel-pct">32.8% du marché</div>
+          <div class="fuel-detail">Prix moy. : <strong>₹2,23,757</strong><br>Kilométrage : <strong>80.1 km/l</strong></div>
+        </div>
+        <div class="fuel-item hybrid">
+          <div class="fuel-name">Hybride</div>
+          <div class="fuel-count">3 360</div>
+          <div class="fuel-pct">33.6% du marché</div>
+          <div class="fuel-detail">Prix moy. : <strong>₹2,25,654</strong><br>Kilométrage : <strong>79.5 km/l</strong></div>
+        </div>
+        <div class="fuel-item petrol">
+          <div class="fuel-name">Essence</div>
+          <div class="fuel-count">3 357</div>
+          <div class="fuel-pct">33.6% du marché</div>
+          <div class="fuel-detail">Prix moy. : <strong>₹2,23,561</strong><br>Kilométrage : <strong>42.2 km/l</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Répartition Carburant (Donut)</div>
+      <canvas id="fuelChart"></canvas>
+    </div>
+  </div>
+
+  <!-- VENDEUR / ASSURANCE -->
+  <div class="section-title">Type de Vendeur & Statut d'Assurance</div>
+  <div class="split-card" style="margin-bottom:32px;">
+    <div class="card">
+      <div class="card-title">Type de Vendeur</div>
+      <div class="pill-row">
+        <span class="pill-label">🏢 Dealer</span>
+        <span class="pill-val">5 035 — 50.3%</span>
+      </div>
+      <div class="pill-row">
+        <span class="pill-label">👤 Individual</span>
+        <span class="pill-val">4 965 — 49.7%</span>
+      </div>
+      <div style="margin-top:20px;">
+        <canvas id="sellerChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Statut d'Assurance</div>
+      <div class="pill-row">
+        <span class="pill-label" style="color:var(--accent3);">✅ Active</span>
+        <span class="pill-val">3 321 — 33.2%</span>
+      </div>
+      <div class="pill-row">
+        <span class="pill-label" style="color:var(--accent);">❌ Expired</span>
+        <span class="pill-val">3 429 — 34.3%</span>
+      </div>
+      <div class="pill-row">
+        <span class="pill-label" style="color:var(--muted);">⚠️ Not Available</span>
+        <span class="pill-val">3 250 — 32.5%</span>
+      </div>
+      <div style="margin-top:20px;">
+        <canvas id="insuranceChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSE PAR ÉTAT -->
+  <div class="section-title">Analyse par État (Top 10)</div>
+  <div class="card" style="margin-bottom:32px;">
+    <div class="card-title">Répartition Géographique</div>
+    <canvas id="stateChart" style="max-height:300px;"></canvas>
+    <div style="overflow-x:auto; margin-top:24px;">
+      <table>
+        <thead>
+          <tr><th>État</th><th>Nb Motos</th><th>% Marché</th><th>Prix Moyen (₹)</th><th>Prix Revente (₹)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Punjab</td><td>1 051</td><td class="pct">10.5%</td><td>2,26,566</td><td>1,34,904</td></tr>
+          <tr><td>Maharashtra</td><td>1 030</td><td class="pct">10.3%</td><td>2,20,032</td><td>1,30,839</td></tr>
+          <tr><td>Rajasthan</td><td>1 017</td><td class="pct">10.2%</td><td>2,20,820</td><td>1,31,219</td></tr>
+          <tr><td>Uttar Pradesh</td><td>1 003</td><td class="pct">10.0%</td><td>2,27,511</td><td>1,36,085</td></tr>
+          <tr><td>Gujarat</td><td>1 002</td><td class="pct">10.0%</td><td>2,26,441</td><td>1,37,316</td></tr>
+          <tr><td>Tamil Nadu</td><td>994</td><td class="pct">9.9%</td><td>2,26,715</td><td>1,33,389</td></tr>
+          <tr><td>Karnataka</td><td>982</td><td class="pct">9.8%</td><td>2,25,220</td><td>1,34,381</td></tr>
+          <tr><td>Delhi</td><td>977</td><td class="pct">9.8%</td><td>2,28,110</td><td>1,35,510</td></tr>
+          <tr><td>Madhya Pradesh</td><td>973</td><td class="pct">9.7%</td><td>2,19,937</td><td>1,31,771</td></tr>
+          <tr><td>West Bengal</td><td>971</td><td class="pct">9.7%</td><td>2,21,925</td><td>1,32,905</td></tr>
+          <tr><td><strong>TOTAL</strong></td><td><strong>10 000</strong></td><td class="pct"><strong>100%</strong></td><td><strong>2,24,329</strong></td><td><strong>1,33,832</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ÉVOLUTION ANNUELLE -->
+  <div class="section-title">Évolution Annuelle (2015–2024)</div>
+  <div class="grid-2" style="margin-bottom:32px;">
+    <div class="card">
+      <div class="card-title">Volume annuel des ventes</div>
+      <canvas id="yearChart"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Détail par année</div>
+      <div class="year-row"><span class="year-num">2015</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:100%"></div></div><span class="year-val">1 060</span><span class="year-val pct">10.6%</span></div>
+      <div class="year-row"><span class="year-num">2016</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:93%"></div></div><span class="year-val">987</span><span class="year-val pct">9.9%</span></div>
+      <div class="year-row"><span class="year-num">2017</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:92%"></div></div><span class="year-val">977</span><span class="year-val pct">9.8%</span></div>
+      <div class="year-row"><span class="year-num">2018</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:91%"></div></div><span class="year-val">961</span><span class="year-val pct">9.6%</span></div>
+      <div class="year-row"><span class="year-num">2019</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:96%"></div></div><span class="year-val">1 019</span><span class="year-val pct">10.2%</span></div>
+      <div class="year-row"><span class="year-num">2020</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:91%"></div></div><span class="year-val">969</span><span class="year-val pct">9.7%</span></div>
+      <div class="year-row"><span class="year-num">2021</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:91%"></div></div><span class="year-val">960</span><span class="year-val pct">9.6%</span></div>
+      <div class="year-row"><span class="year-num">2022</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:93%"></div></div><span class="year-val">987</span><span class="year-val pct">9.9%</span></div>
+      <div class="year-row"><span class="year-num">2023</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:97%"></div></div><span class="year-val">1 029</span><span class="year-val pct">10.3%</span></div>
+      <div class="year-row"><span class="year-num">2024</span><div class="year-bar-bg" style="flex:1"><div class="year-bar-fill" style="width:99%"></div></div><span class="year-val">1 051</span><span class="year-val pct">10.5%</span></div>
+    </div>
+  </div>
+
+  <!-- TIER DE VILLE -->
+  <div class="section-title">Analyse par Tier de Ville & Type de Propriétaire</div>
+  <div class="grid-2" style="margin-bottom:32px;">
+    <div class="card">
+      <div class="card-title">Répartition par Tier de Ville</div>
+      <div class="tier-grid">
+        <div class="tier-item"><div class="tier-name">Metro</div><div class="tier-count">2 474</div><div class="tier-price">Prix moy. ₹2,24,238</div></div>
+        <div class="tier-item"><div class="tier-name">Tier 1</div><div class="tier-count">2 422</div><div class="tier-price">Prix moy. ₹2,24,701</div></div>
+        <div class="tier-item"><div class="tier-name">Tier 2</div><div class="tier-count">2 487</div><div class="tier-price">Prix moy. ₹2,23,199</div></div>
+        <div class="tier-item"><div class="tier-name">Tier 3</div><div class="tier-count">2 617</div><div class="tier-price">Prix moy. ₹2,25,144</div></div>
+      </div>
+      <div style="margin-top:20px;">
+        <canvas id="tierChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Type de Propriétaire</div>
+      <div class="owner-grid">
+        <div class="owner-item">
+          <div class="owner-label">1er Propriétaire</div>
+          <div class="owner-count">3 407</div>
+          <div class="owner-price">Revente moy. ₹1,34,319</div>
+        </div>
+        <div class="owner-item">
+          <div class="owner-label">2ème Propriétaire</div>
+          <div class="owner-count">3 336</div>
+          <div class="owner-price">Revente moy. ₹1,33,567</div>
+        </div>
+        <div class="owner-item">
+          <div class="owner-label">3ème Propriétaire</div>
+          <div class="owner-count">3 257</div>
+          <div class="owner-price">Revente moy. ₹1,33,584</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;">
+        <canvas id="ownerChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  Dashboard généré à partir de <span>10 000 enregistrements</span> · Marché des Motos en Inde · 2015–2024
+</footer>
+
+<script>
+const COLORS = {
+  accent: '#ff5c2b',
+  accent2: '#ffc72c',
+  accent3: '#3dffa0',
+  muted: '#7a7a95',
+  orange: '#ff7a45',
+  purple: '#a78bfa',
+  blue: '#60a5fa',
+};
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: {
+      labels: { color: '#f0eeea', font: { family: 'DM Sans', size: 11 }, boxWidth: 12 }
+    }
+  }
+};
+
+// BRAND PIE
+new Chart(document.getElementById('brandChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Kawasaki','Yamaha','KTM','Royal Enfield','Hero','TVS','Honda','Bajaj'],
+    datasets: [{
+      data: [1291,1283,1272,1253,1239,1234,1221,1207],
+      backgroundColor: ['#ff5c2b','#ffc72c','#3dffa0','#60a5fa','#a78bfa','#f472b6','#34d399','#fb923c'],
+      borderWidth: 2, borderColor: '#16161f'
+    }]
+  },
+  options: { ...chartDefaults, cutout: '55%' }
+});
+
+// FUEL DOUGHNUT
+new Chart(document.getElementById('fuelChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Électrique (32.8%)', 'Hybride (33.6%)', 'Essence (33.6%)'],
+    datasets: [{
+      data: [3283,3360,3357],
+      backgroundColor: ['#3dffa0','#ffc72c','#ff5c2b'],
+      borderWidth: 2, borderColor: '#16161f'
+    }]
+  },
+  options: { ...chartDefaults, cutout: '60%' }
+});
+
+// SELLER BAR
+new Chart(document.getElementById('sellerChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Dealer', 'Individual'],
+    datasets: [{
+      data: [5035, 4965],
+      backgroundColor: ['#ff5c2b','#ffc72c'],
+      borderRadius: 3, borderSkipped: false
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#7a7a95' }, grid: { display: false } },
+      y: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a3a' } }
+    }
+  }
+});
+
+// INSURANCE
+new Chart(document.getElementById('insuranceChart'), {
+  type: 'pie',
+  data: {
+    labels: ['Active (33.2%)', 'Expired (34.3%)', 'Not Available (32.5%)'],
+    datasets: [{
+      data: [3321, 3429, 3250],
+      backgroundColor: ['#3dffa0','#ff5c2b','#7a7a95'],
+      borderWidth: 2, borderColor: '#16161f'
+    }]
+  },
+  options: { ...chartDefaults }
+});
+
+// STATE BAR
+new Chart(document.getElementById('stateChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Punjab','Maharashtra','Rajasthan','Uttar Pradesh','Gujarat','Tamil Nadu','Karnataka','Delhi','M.P.','West Bengal'],
+    datasets: [{
+      label: 'Nombre de Motos',
+      data: [1051,1030,1017,1003,1002,994,982,977,973,971],
+      backgroundColor: 'rgba(255,92,43,0.7)',
+      borderColor: '#ff5c2b',
+      borderWidth: 1, borderRadius: 3
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#7a7a95', font: { size: 10 } }, grid: { display: false } },
+      y: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a3a' }, min: 940 }
+    }
+  }
+});
+
+// YEAR LINE
+new Chart(document.getElementById('yearChart'), {
+  type: 'line',
+  data: {
+    labels: ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],
+    datasets: [{
+      label: 'Nb Motos',
+      data: [1060,987,977,961,1019,969,960,987,1029,1051],
+      borderColor: '#ff5c2b',
+      backgroundColor: 'rgba(255,92,43,0.12)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#ff5c2b',
+      pointRadius: 5,
+      tension: 0.3,
+      fill: true
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#7a7a95' }, grid: { display: false } },
+      y: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a3a' }, min: 920 }
+    }
+  }
+});
+
+// TIER
+new Chart(document.getElementById('tierChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Metro','Tier 1','Tier 2','Tier 3'],
+    datasets: [{
+      data: [2474,2422,2487,2617],
+      backgroundColor: ['#ffc72c','#ff7a45','#ff5c2b','#c84a20'],
+      borderRadius: 3
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#7a7a95' }, grid: { display: false } },
+      y: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a3a' }, min: 2300 }
+    }
+  }
+});
+
+// OWNER
+new Chart(document.getElementById('ownerChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['1er Proprio (34.1%)', '2ème Proprio (33.4%)', '3ème Proprio (32.6%)'],
+    datasets: [{
+      data: [3407,3336,3257],
+      backgroundColor: ['#3dffa0','#ffc72c','#ff5c2b'],
+      borderWidth: 2, borderColor: '#16161f'
+    }]
+  },
+  options: { ...chartDefaults, cutout: '55%' }
+});
+</script>
+</body>
+</html>
