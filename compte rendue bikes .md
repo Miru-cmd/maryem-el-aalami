@@ -1,3 +1,5 @@
+<img width="319" height="438" alt="image" src="https://github.com/user-attachments/assets/209856b7-1208-4fc7-bc1e-81935ea88a3f" />
+
 # 🏍️ Rapport d'Analyse — Marché des Motos en Inde  
 *Dashboard basé sur 10 000 enregistrements · Période : 2015–2024*
 
