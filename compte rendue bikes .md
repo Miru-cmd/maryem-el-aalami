@@ -174,4 +174,3 @@
 
 ---
 
-*Ce rapport est basé exclusivement sur les données fournies dans le fichier `Dashboard_Motos_Inde (1).xlsx`. Pour toute analyse complémentaire, une exploration des données brutes est recommandée.* 🏍️📊
